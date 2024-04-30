@@ -1,0 +1,240 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
+public class GadgetShop extends JFrame implements ActionListener {
+    private ArrayList<Gadget> gadgets = new ArrayList<>();
+    private ArrayList<String> deviceNames = new ArrayList<>();
+    private JComboBox<String> deviceComboBox;
+    private JTextField modelField, priceField, weightField, sizeField, creditField, memoryField, phoneNumberField, durationField, downloadSizeField;
+
+    public GadgetShop() {
+        setTitle("Gadget Shop");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel(new GridLayout(10, 2, 5, 5));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        inputPanel.add(new JLabel("Model:"));
+        modelField = new JTextField();
+        inputPanel.add(modelField);
+
+        inputPanel.add(new JLabel("Price:"));
+        priceField = new JTextField();
+        inputPanel.add(priceField);
+
+        inputPanel.add(new JLabel("Weight:"));
+        weightField = new JTextField();
+        inputPanel.add(weightField);
+
+        inputPanel.add(new JLabel("Size:"));
+        sizeField = new JTextField();
+        inputPanel.add(sizeField);
+
+        inputPanel.add(new JLabel("Credit:"));
+        creditField = new JTextField();
+        inputPanel.add(creditField);
+
+        inputPanel.add(new JLabel("Memory:"));
+        memoryField = new JTextField();
+        inputPanel.add(memoryField);
+
+        inputPanel.add(new JLabel("Phone Number:"));
+        phoneNumberField = new JTextField();
+        inputPanel.add(phoneNumberField);
+
+        durationField = new JTextField(); // Initially hidden
+        durationField.setVisible(false);
+        inputPanel.add(new JLabel("Duration:"));
+        inputPanel.add(durationField);
+
+        downloadSizeField = new JTextField(); // Initially hidden
+        downloadSizeField.setVisible(false);
+        inputPanel.add(new JLabel("Download Size:"));
+        inputPanel.add(downloadSizeField);
+
+        deviceComboBox = new JComboBox<>();
+        inputPanel.add(new JLabel("Select Device:"));
+        inputPanel.add(deviceComboBox);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 6, 5, 5));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        JButton addMobileBtn = new JButton("Add Mobile");
+        addMobileBtn.addActionListener(this);
+        buttonPanel.add(addMobileBtn);
+
+        JButton addMP3Btn = new JButton("Add MP3");
+        addMP3Btn.addActionListener(this);
+        buttonPanel.add(addMP3Btn);
+
+        JButton clearBtn = new JButton("Clear");
+        clearBtn.addActionListener(this);
+        buttonPanel.add(clearBtn);
+
+        JButton displayAllBtn = new JButton("Display All");
+        displayAllBtn.addActionListener(this);
+        buttonPanel.add(displayAllBtn);
+
+        JButton makeCallBtn = new JButton("Make A Call");
+        makeCallBtn.addActionListener(e -> makeACall());
+        buttonPanel.add(makeCallBtn);
+
+        JButton downloadMusicBtn = new JButton("Download Music");
+        downloadMusicBtn.addActionListener(e -> downloadMusic());
+        buttonPanel.add(downloadMusicBtn);
+
+        add(inputPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Interactive tutorial
+        JOptionPane.showMessageDialog(this, "Welcome to the Gadget Shop, Dumitru's TANASIE!\nLet's get started with adding gadgets.\nFill in the details and click on the buttons to perform actions.", "Welcome", JOptionPane.INFORMATION_MESSAGE);
+
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(GadgetShop::new);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String actionCommand = e.getActionCommand();
+
+        switch (actionCommand) {
+            case "Add Mobile":
+                addMobile();
+                break;
+            case "Add MP3":
+                addMP3();
+                break;
+            case "Clear":
+                clear();
+                break;
+            case "Display All":
+                displayAll();
+                break;
+        }
+    }
+
+    private void addMobile() {
+        try {
+            String model = modelField.getText();
+            double price = Double.parseDouble(priceField.getText());
+            int weight = Integer.parseInt(weightField.getText());
+            String size = sizeField.getText();
+            int credit = Integer.parseInt(creditField.getText());
+
+            gadgets.add(new Mobile(model, price, weight, size, credit));
+            deviceNames.add(model);
+            deviceComboBox.addItem(model + " - " + phoneNumberField.getText());
+            JOptionPane.showMessageDialog(this, "Mobile added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input! Please enter valid numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void addMP3() {
+        try {
+            String model = modelField.getText();
+            double price = Double.parseDouble(priceField.getText());
+            int weight = Integer.parseInt(weightField.getText());
+            String size = sizeField.getText();
+            double memory = Double.parseDouble(memoryField.getText());
+
+            gadgets.add(new MP3(model, price, weight, size, memory));
+            deviceNames.add(model);
+            deviceComboBox.addItem(model);
+            JOptionPane.showMessageDialog(this, "MP3 player added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input! Please enter valid numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void clear() {
+        gadgets.clear();
+        deviceNames.clear();
+        deviceComboBox.removeAllItems();
+        JOptionPane.showMessageDialog(this, "All gadgets cleared!", "Cleared", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void displayAll() {
+        if (gadgets.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No gadgets to display.", "Empty", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < gadgets.size(); i++) {
+            Gadget gadget = gadgets.get(i);
+            builder.append("Gadget ").append(i + 1).append(" (");
+            if (gadget instanceof Mobile) {
+                builder.append("Mobile):\n");
+                builder.append("Model: ").append(deviceNames.get(i)).append("\n");
+                builder.append("Phone Number: ").append(phoneNumberField.getText()).append("\n");
+                builder.append("Credit: ").append(creditField.getText()).append("\n");
+            } else if (gadget instanceof MP3) {
+                builder.append("MP3):\n");
+                builder.append("Model: ").append(deviceNames.get(i)).append("\n");
+                builder.append("Memory: ").append(memoryField.getText()).append("\n");
+            }
+            builder.append(gadget).append("\n");
+        }
+        JOptionPane.showMessageDialog(this, builder.toString(), "All Gadgets", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void makeACall() {
+        if (gadgets.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No gadgets available to make a call.", "Empty", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int selectedDeviceIndex = deviceComboBox.getSelectedIndex();
+        if (selectedDeviceIndex == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a device first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            Mobile mobile = (Mobile) gadgets.get(selectedDeviceIndex);
+            String phoneNumber = phoneNumberField.getText();
+            int duration = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter duration in minutes:"));
+
+            mobile.makeCall(phoneNumber, duration);
+            JOptionPane.showMessageDialog(this, "Call made successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input! Please enter a valid number for duration.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassCastException ex) {
+            JOptionPane.showMessageDialog(this, "Selected device is not a mobile!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void downloadMusic() {
+        if (gadgets.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No gadgets available to download music.", "Empty", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int selectedDeviceIndex = deviceComboBox.getSelectedIndex();
+        if (selectedDeviceIndex == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a device first!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            MP3 mp3 = (MP3) gadgets.get(selectedDeviceIndex);
+            double downloadSize = Double.parseDouble(JOptionPane.showInputDialog(this, "Enter download size in MB:"));
+
+            mp3.downloadMusic(downloadSize);
+            JOptionPane.showMessageDialog(this, "Music downloaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input! Please enter a valid number for download size.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassCastException ex) {
+            JOptionPane.showMessageDialog(this, "Selected device is not an MP3 player!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
